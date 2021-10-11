@@ -35,4 +35,4 @@ class YOLOXModeSwitchHook(Hook):
             runner.logger.info('No mosaic and mixup aug now!')
             train_loader.dataset.update_skip_type_keys(self.skip_type_keys)
             runner.logger.info('Add additional L1 loss now!')
-            model.bbox_head.use_l1 = True
+            # model.bbox_head.use_l1 = True
