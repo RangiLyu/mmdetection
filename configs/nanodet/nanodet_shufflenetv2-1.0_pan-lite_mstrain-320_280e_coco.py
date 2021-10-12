@@ -116,7 +116,7 @@ data = dict(
 evaluation = dict(by_epoch=True, interval=1, metric='bbox')
 
 # optimizer
-optimizer = dict(type='SGD', lr=0.08, momentum=0.9, weight_decay=5.0e-4)
+optimizer = dict(type='SGD', lr=0.04, momentum=0.9, weight_decay=5.0e-4)
 optimizer_config = dict(grad_clip=None)
 
 # learning policy
