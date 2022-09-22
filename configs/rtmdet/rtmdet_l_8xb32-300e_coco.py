@@ -117,6 +117,7 @@ train_dataloader = dict(
     batch_size=32,
     num_workers=10,
     batch_sampler=None,
+    pin_memory=True,
     dataset=dict(
         filter_cfg=dict(filter_empty_gt=False), pipeline=train_pipeline))
 val_dataloader = dict(
