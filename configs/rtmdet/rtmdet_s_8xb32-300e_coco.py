@@ -1,9 +1,11 @@
 _base_ = './rtmdet_l_8xb32-300e_coco.py'
-
+checkpoint = '/mnt/cache/lvchengqi/code/mmclassification/work_dirs/pretrain/cspnext-s/rsb-pretrain/epoch_600.pth'  # noqa
 model = dict(
     backbone=dict(deepen_factor=0.33, widen_factor=0.5),
     neck=dict(in_channels=[128, 256, 512], out_channels=128, num_csp_blocks=1),
-    bbox_head=dict(in_channels=128, feat_channels=128))
+    bbox_head=dict(in_channels=128, feat_channels=128),
+    init_cfg=dict(
+        type='Pretrained', prefix='backbone.', checkpoint=checkpoint))
 
 train_pipeline = [
     dict(
