@@ -11,7 +11,7 @@ from mmdet.utils import ConfigType
 from .assign_result import AssignResult
 from .base_assigner import BaseAssigner
 
-INF = 100000.0
+INF = 100000000
 EPS = 1.0e-7
 
 
