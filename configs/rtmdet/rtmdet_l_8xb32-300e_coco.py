@@ -17,7 +17,7 @@ model = dict(
         deepen_factor=1,
         widen_factor=1,
         channel_attention=True,
-        norm_cfg=dict(type='BN'),
+        norm_cfg=dict(type='SyncBN'),
         act_cfg=dict(type='SiLU')),
     neck=dict(
         type='CSPNeXtPAFPN',
@@ -25,7 +25,7 @@ model = dict(
         out_channels=256,
         num_csp_blocks=3,
         expand_ratio=0.5,
-        norm_cfg=dict(type='BN'),
+        norm_cfg=dict(type='SyncBN'),
         act_cfg=dict(type='SiLU')),
     bbox_head=dict(
         type='RTMDetSepBNHead',
@@ -45,7 +45,7 @@ model = dict(
         with_objectness=False,
         share_conv=True,
         pred_kernel_size=1,
-        norm_cfg=dict(type='BN'),
+        norm_cfg=dict(type='SyncBN'),
         act_cfg=dict(type='SiLU')),
     train_cfg=dict(
         assigner=dict(type='DynamicSoftLabelAssigner', topk=13),
