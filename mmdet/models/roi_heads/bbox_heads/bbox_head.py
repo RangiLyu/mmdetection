@@ -428,7 +428,8 @@ class BBoxHead(BaseModule):
                         bbox_preds: Tuple[Tensor],
                         batch_img_metas: List[dict],
                         rcnn_test_cfg: Optional[ConfigDict] = None,
-                        rescale: bool = False) -> InstanceList:
+                        rescale: bool = False,
+                        score_factors=None) -> InstanceList:
         """Transform a batch of output features extracted from the head into
         bbox results.
 
@@ -468,19 +469,20 @@ class BBoxHead(BaseModule):
                 bbox_pred=bbox_preds[img_id],
                 img_meta=img_meta,
                 rescale=rescale,
-                rcnn_test_cfg=rcnn_test_cfg)
+                rcnn_test_cfg=rcnn_test_cfg,
+                score_factors=score_factors[img_id])
             result_list.append(results)
 
         return result_list
 
-    def _predict_by_feat_single(
-            self,
-            roi: Tensor,
-            cls_score: Tensor,
-            bbox_pred: Tensor,
-            img_meta: dict,
-            rescale: bool = False,
-            rcnn_test_cfg: Optional[ConfigDict] = None) -> InstanceData:
+    def _predict_by_feat_single(self,
+                                roi: Tensor,
+                                cls_score: Tensor,
+                                bbox_pred: Tensor,
+                                img_meta: dict,
+                                rescale: bool = False,
+                                rcnn_test_cfg: Optional[ConfigDict] = None,
+                                score_factors=None) -> InstanceData:
         """Transform a single image's features extracted from the head into
         bbox results.
 
@@ -523,8 +525,12 @@ class BBoxHead(BaseModule):
         if self.custom_cls_channels:
             scores = self.loss_cls.get_activation(cls_score)
         else:
-            scores = F.softmax(
-                cls_score, dim=-1) if cls_score is not None else None
+            # TODO: act before re-weight
+            # scores = F.softmax(
+            #     cls_score, dim=-1) if cls_score is not None else None
+            scores = cls_score
+        if score_factors is not None:
+            scores = torch.sqrt(scores * score_factors[:, None])
 
         img_shape = img_meta['img_shape']
         num_rois = roi.size(0)

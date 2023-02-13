@@ -352,6 +352,10 @@ class CascadeRoIHead(BaseRoIHead):
                   the last dimension 4 arrange as (x1, y1, x2, y2).
         """
         proposals = [res.bboxes for res in rpn_results_list]
+        if rcnn_test_cfg.get('mul_proposal_scores', False):
+            score_factors = [res.scores for res in rpn_results_list]
+        else:
+            score_factors = None
         num_proposals_per_img = tuple(len(p) for p in proposals)
         rois = bbox2roi(proposals)
 
@@ -377,7 +381,8 @@ class CascadeRoIHead(BaseRoIHead):
             bbox_preds=bbox_preds,
             batch_img_metas=batch_img_metas,
             rescale=rescale,
-            rcnn_test_cfg=rcnn_test_cfg)
+            rcnn_test_cfg=rcnn_test_cfg,
+            score_factors=score_factors)
         return results_list
 
     def predict_mask(self,
@@ -471,7 +476,8 @@ class CascadeRoIHead(BaseRoIHead):
                 stage=stage, x=x, rois=rois, **kwargs)
 
             # split batch bbox prediction back to each image
-            cls_scores = bbox_results['cls_score']
+            # TODO: centernet2 softmax before refine
+            cls_scores = bbox_results['cls_score'].softmax(dim=-1)
             bbox_preds = bbox_results['bbox_pred']
 
             rois = rois.split(num_proposals_per_img, 0)
