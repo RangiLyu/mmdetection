@@ -20,7 +20,7 @@ model = dict(
         norm_cfg=dict(type='BN', requires_grad=True),
         norm_eval=True,
         style='caffe',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+        init_cfg=dict(type='Pretrained', checkpoint='open-mmlab://detectron2/resnet101_caffe')),
     neck=dict(
         type='FPN',
         in_channels=[512, 1024, 2048],
