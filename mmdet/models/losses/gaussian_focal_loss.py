@@ -37,17 +37,18 @@ def gaussian_focal_loss(pred: Tensor,
     return pos_weight * pos_loss + neg_weight * neg_loss
 
 
-def gaussian_focal_loss_with_pos_inds(
-        pred: Tensor,
-        gaussian_target: Tensor,
-        pos_inds: Tensor,
-        pos_labels: Tensor,
-        alpha: float = 2.0,
-        gamma: float = 4.0,
-        pos_weight: float = 1.0,
-        neg_weight: float = 1.0,
-        reduction: str = 'mean',
-        avg_factor: Optional[Union[int, float]] = None) -> Tensor:
+def gaussian_focal_loss_with_pos_inds(pred: Tensor,
+                                      gaussian_target: Tensor,
+                                      pos_inds: Tensor,
+                                      pos_labels: Tensor,
+                                      alpha: float = 2.0,
+                                      gamma: float = 4.0,
+                                      pos_weight: float = 1.0,
+                                      neg_weight: float = 1.0,
+                                      reduction: str = 'mean',
+                                      avg_factor: Optional[Union[
+                                          int, float]] = None,
+                                      fp_ignore_thr: float = -1) -> Tensor:
     """`Focal Loss <https://arxiv.org/abs/1708.02002>`_ for targets in gaussian
     distribution.
 
@@ -84,7 +85,11 @@ def gaussian_focal_loss_with_pos_inds(
     pos_loss = weight_reduce_loss(pos_loss, None, reduction, avg_factor)
 
     neg_loss = -(1 - pred + eps).log() * pred.pow(alpha) * neg_weights
-    neg_loss = weight_reduce_loss(neg_loss, None, reduction, avg_factor)
+    if fp_ignore_thr > 0:
+        not_high_fp = (pred < fp_ignore_thr).to(neg_loss.dtype)
+    else:
+        not_high_fp = None
+    neg_loss = weight_reduce_loss(neg_loss, not_high_fp, reduction, avg_factor)
 
     return pos_weight * pos_loss + neg_weight * neg_loss
 
@@ -115,7 +120,8 @@ class GaussianFocalLoss(nn.Module):
                  reduction: str = 'mean',
                  loss_weight: float = 1.0,
                  pos_weight: float = 1.0,
-                 neg_weight: float = 1.0) -> None:
+                 neg_weight: float = 1.0,
+                 fp_ignore_thr: float = -1) -> None:
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -123,6 +129,7 @@ class GaussianFocalLoss(nn.Module):
         self.loss_weight = loss_weight
         self.pos_weight = pos_weight
         self.neg_weight = neg_weight
+        self.fp_ignore_thr = fp_ignore_thr
 
     def forward(self,
                 pred: Tensor,
@@ -171,7 +178,8 @@ class GaussianFocalLoss(nn.Module):
                 pos_weight=self.pos_weight,
                 neg_weight=self.neg_weight,
                 reduction=reduction,
-                avg_factor=avg_factor)
+                avg_factor=avg_factor,
+                fp_ignore_thr=self.fp_ignore_thr)
         else:
             loss_reg = self.loss_weight * gaussian_focal_loss(
                 pred,

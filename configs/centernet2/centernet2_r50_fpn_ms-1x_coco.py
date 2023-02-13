@@ -40,10 +40,11 @@ model = dict(
         norm_cfg=dict(type='GN', num_groups=32, requires_grad=True),
         loss_cls=dict(
             type='GaussianFocalLoss',
-            pos_weight=0.25,
-            neg_weight=0.75,
-            loss_weight=1.0),
-        loss_bbox=dict(type='GIoULoss', loss_weight=2.0),
+            pos_weight=0.5,
+            neg_weight=0.5,
+            loss_weight=1.0,
+            fp_ignore_thr=0.85),
+        loss_bbox=dict(type='GIoULoss', loss_weight=1.0),
     ),
     roi_head=dict(
         type='CascadeRoIHead',
