@@ -197,3 +197,5 @@ model = dict(
             score_thr=0.02,
             nms=dict(type='nms', iou_threshold=0.7),
             max_per_img=100)))
+
+optim_wrapper = dict(clip_grad=dict(max_norm=35, norm_type=2))
