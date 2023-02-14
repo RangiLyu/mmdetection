@@ -17,10 +17,10 @@ model = dict(
         num_stages=4,
         out_indices=(1, 2, 3),
         frozen_stages=1,
-        norm_cfg=dict(type='BN', requires_grad=True),
+        norm_cfg=dict(type='BN', requires_grad=False),
         norm_eval=True,
         style='caffe',
-        init_cfg=dict(type='Pretrained', checkpoint='open-mmlab://detectron2/resnet101_caffe')),
+        init_cfg=dict(type='Pretrained', checkpoint='open-mmlab://detectron2/resnet50_caffe')),
     neck=dict(
         type='FPN',
         in_channels=[512, 1024, 2048],
