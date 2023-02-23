@@ -8,6 +8,7 @@ from mmdet.registry import MODELS
 from mmdet.structures import OptSampleList, SampleList
 from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
 from .base import BaseDetector
+from mmengine.utils.dl_utils.time_counter import DistTimeCounter
 
 
 @MODELS.register_module()
@@ -95,12 +96,14 @@ class DetectionTransformer(BaseDetector, metaclass=ABCMeta):
         Returns:
             dict: A dictionary of loss components
         """
-        img_feats = self.extract_feat(batch_inputs)
-        head_inputs_dict = self.forward_transformer(img_feats,
-                                                    batch_data_samples)
-        losses = self.bbox_head.loss(
-            **head_inputs_dict, batch_data_samples=batch_data_samples)
-
+        with DistTimeCounter(tag='model/backbone_forward'):
+            img_feats = self.extract_feat(batch_inputs)
+        with DistTimeCounter(tag='model/transformer_forward'):
+            head_inputs_dict = self.forward_transformer(img_feats,
+                                                        batch_data_samples)
+        with DistTimeCounter(tag='model/head_loss'):
+            losses = self.bbox_head.loss(
+                **head_inputs_dict, batch_data_samples=batch_data_samples)
         return losses
 
     def predict(self,
