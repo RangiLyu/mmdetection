@@ -96,12 +96,12 @@ class DetectionTransformer(BaseDetector, metaclass=ABCMeta):
         Returns:
             dict: A dictionary of loss components
         """
-        with DistTimeCounter(tag='model/backbone_forward'):
+        with DistTimeCounter(tag='train/model/backbone_forward'):
             img_feats = self.extract_feat(batch_inputs)
-        with DistTimeCounter(tag='model/transformer_forward'):
+        with DistTimeCounter(tag='train/model/transformer_forward'):
             head_inputs_dict = self.forward_transformer(img_feats,
                                                         batch_data_samples)
-        with DistTimeCounter(tag='model/head_LOSS'):
+        with DistTimeCounter(tag='train/model/head_LOSS'):
             losses = self.bbox_head.loss(
                 **head_inputs_dict, batch_data_samples=batch_data_samples)
         return losses
