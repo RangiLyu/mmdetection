@@ -101,7 +101,7 @@ class DetectionTransformer(BaseDetector, metaclass=ABCMeta):
         with DistTimeCounter(tag='model/transformer_forward'):
             head_inputs_dict = self.forward_transformer(img_feats,
                                                         batch_data_samples)
-        with DistTimeCounter(tag='model/head_loss'):
+        with DistTimeCounter(tag='model/head_LOSS'):
             losses = self.bbox_head.loss(
                 **head_inputs_dict, batch_data_samples=batch_data_samples)
         return losses
